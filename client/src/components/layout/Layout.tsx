@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import TopNavBar from './TopNavBar';
 import Sidebar from './Sidebar';
 

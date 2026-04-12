@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FixForward Insights - Student Wellness</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#fbf9f5",
+                    "on-secondary-container": "#245a50",
+                    "secondary-container": "#b6eee0",
+                    "tertiary-dim": "#883c2e",
+                    "on-surface-variant": "#5e605b",
+                    "on-surface": "#31332f",
+                    "error-container": "#fa746f",
+                    "primary-fixed-dim": "#87d0f0",
+                    "primary-container": "#95deff",
+                    "surface-container-highest": "#e3e3dc",
+                    "on-error-container": "#6e0a12",
+                    "on-secondary-fixed": "#0c483e",
+                    "surface-variant": "#e3e3dc",
+                    "tertiary-container": "#fd9886",
+                    "surface-bright": "#fbf9f5",
+                    "surface-tint": "#056783",
+                    "surface-dim": "#dadad4",
+                    "surface-container-high": "#e9e8e3",
+                    "surface-container": "#efeee8",
+                    "error": "#a83836",
+                    "inverse-on-surface": "#9e9d99",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#7a7b76",
+                    "primary": "#056783",
+                    "secondary-fixed-dim": "#a8dfd2",
+                    "inverse-primary": "#95deff",
+                    "secondary-fixed": "#b6eee0",
+                    "secondary-dim": "#265c51",
+                    "on-error": "#fff7f6",
+                    "on-secondary": "#e3fff6",
+                    "primary-fixed": "#95deff",
+                    "inverse-surface": "#0e0e0c",
+                    "on-primary": "#f2faff",
+                    "primary-dim": "#005a74",
+                    "on-tertiary-fixed-variant": "#6a2519",
+                    "on-primary-container": "#005066",
+                    "on-tertiary-container": "#5e1c12",
+                    "on-tertiary-fixed": "#3d0401",
+                    "on-tertiary": "#fff7f6",
+                    "on-primary-fixed": "#003b4d",
+                    "tertiary-fixed-dim": "#ed8b7a",
+                    "surface-container-low": "#f5f4ef",
+                    "secondary": "#33685d",
+                    "on-secondary-fixed-variant": "#2f645a",
+                    "background": "#fbf9f5",
+                    "outline-variant": "#b2b2ac",
+                    "error-dim": "#67040d",
+                    "tertiary-fixed": "#fd9886",
+                    "tertiary": "#974739",
+                    "on-primary-fixed-variant": "#005a73",
+                    "on-background": "#31332f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-manrope { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(251, 249, 245, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .vibe-gradient {
+            background: linear-gradient(90deg, #33685d 0%, #fd9886 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container">
+<!-- Top Navigation Bar -->
+<nav class="bg-[#fbf9f5]/80 dark:bg-stone-900/80 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-[0_40px_40px_rgba(49,51,47,0.05)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-full mx-auto">
+<div class="text-xl font-bold tracking-tight text-[#31332f] dark:text-stone-100 font-headline">FixForward</div>
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-[#31332f]/60 dark:text-stone-400 hover:text-[#056783] font-body text-sm hover:scale-[1.02] transition-transform duration-200" href="#">Dashboard</a>
+<a class="text-[#056783] dark:text-[#95deff] font-bold border-b-2 border-[#056783] pb-1 font-body text-sm hover:scale-[1.02] transition-transform duration-200" href="#">Insights</a>
+<a class="text-[#31332f]/60 dark:text-stone-400 hover:text-[#056783] font-body text-sm hover:scale-[1.02] transition-transform duration-200" href="#">Manual Log</a>
+<a class="text-[#31332f]/60 dark:text-stone-400 hover:text-[#056783] font-body text-sm hover:scale-[1.02] transition-transform duration-200" href="#">Institutional View</a>
+</div>
+<div class="flex items-center space-x-6">
+<span class="text-[#2D7D9A] dark:text-[#95deff] text-xs font-medium bg-primary-container/20 px-3 py-1 rounded-full">Data Syncing</span>
+<div class="flex space-x-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer scale-98 active:opacity-80 transition-all" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer scale-98 active:opacity-80 transition-all" data-icon="settings">settings</span>
+</div>
+<img alt="User profile avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-container/30" data-alt="close-up portrait of a friendly young man with a warm smile, professional lighting, clean studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDJBD-rWkE0NmP0ibnmI4ou8DxtbYd8szzmRmC170G_VVJdcQnhtLppFGGubvAey4uf07oIKqZ_vEkwIsh90x8julOmero7VbTxGttmF6aqm-RRY-KaWbZkoAXYb9bAL7DVUOpfy9h1PvlGZUBGl65CzNG_TuvqvqekhWqMWODRA6Xi0yy2jMTYHV8xA9N_SEv-XzwINOlfXDIFmu_vivigdsB0c1rEdquRHolULBQlS-6UICGB5LFfQ7IOIJE42DJBAkScvF7pG4"/>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-8 py-12 flex flex-col md:flex-row gap-8">
+<!-- Sidebar Shell (Hidden on mobile as per rules, using BottomNav logic) -->
+<aside class="hidden lg:flex flex-col w-64 space-y-8 sticky top-28 h-[calc(100vh-120px)]">
+<div class="p-6 bg-surface-container-low rounded-3xl space-y-6">
+<div class="flex items-center space-x-3">
+<img alt="Mental health professional avatar" class="w-10 h-10 rounded-xl object-cover" data-alt="professional therapist woman with kind expression, soft natural office lighting, blurred bookshelf background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpTAVIMRSTzakbXmDOrF4pgIAlgspsX7GZ9GM8ClGLTABhA6CJwZai5EMJISrVHUa70taMBOspggQmeL8F-uBGrxBmQMmsEGlxjCby52ihN_596b9-vYviumebtfuJ81D3CdeD0KZwNUX9KoEvf_-gSSqn6IkwYwUp2DzSCa2CacNGuviGR9yfQLz9ALPl7kMlX6fTClKUFygO7I6jmAx0QXKsfeHU_J4ktHclWs-sykK5n0L9tHMctyWMPEm1uhfAQLcGCABeCHQ"/>
+<div>
+<div class="text-sm font-black text-[#056783] font-headline">Student Wellness</div>
+<div class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">System Status: Syncing</div>
+</div>
+</div>
+<nav class="space-y-2">
+<a class="flex items-center space-x-3 p-3 text-on-surface-variant hover:bg-white/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 p-3 bg-white text-[#056783] rounded-xl shadow-sm transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="insights" style="font-variation-settings: 'FILL' 1;">insights</span>
+<span class="text-sm font-bold">Insights</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-on-surface-variant hover:bg-white/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="text-sm font-medium">Manual Log</span>
+</a>
+</nav>
+<button class="w-full py-4 px-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-2xl font-bold text-sm hover:scale-[1.02] transition-transform shadow-lg shadow-primary/20">
+                    Crisis Support
+                </button>
+</div>
+</aside>
+<!-- Primary Content Canvas -->
+<div class="flex-1 space-y-8">
+<!-- Bento Grid Header: Risk Score Deep Dive -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-[2rem] flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-secondary-container/20 rounded-full blur-3xl group-hover:bg-secondary-container/40 transition-colors duration-700"></div>
+<div>
+<span class="text-xs font-bold text-secondary uppercase tracking-[0.2em]">Current Wellness State</span>
+<h1 class="text-5xl font-extrabold text-on-surface mt-2 font-headline leading-tight">Your Insight <br/><span class="text-primary">Summary</span></h1>
+</div>
+<div class="mt-12 grid grid-cols-2 gap-8">
+<div>
+<div class="text-on-surface-variant text-sm font-medium mb-1">Risk Score Contribution</div>
+<div class="flex items-end space-x-2">
+<span class="text-6xl font-black text-on-surface font-headline">34</span>
+<span class="text-on-surface-variant text-xl mb-2 font-medium">/ 100</span>
+</div>
+<div class="mt-4 flex space-x-1 h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-1/3 rounded-full"></div>
+<div class="h-full bg-secondary/30 w-1/6 rounded-full"></div>
+<div class="h-full bg-surface-container-high flex-1 rounded-full"></div>
+</div>
+<p class="text-xs text-on-surface-variant mt-4 leading-relaxed">Your risk levels remain <span class="text-secondary font-bold">Low</span>. Academic stress and late-night activity are the primary contributors this week.</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-3xl space-y-4">
+<h3 class="font-bold text-sm">Key Stressors</h3>
+<ul class="space-y-3">
+<li class="flex items-center space-x-3 text-xs">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-on-surface-variant">Sleep Consistency (-12%)</span>
+</li>
+<li class="flex items-center space-x-3 text-xs">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-on-surface-variant">Social Engagement (+8%)</span>
+</li>
+<li class="flex items-center space-x-3 text-xs">
+<div class="w-2 h-2 rounded-full bg-primary-fixed-dim"></div>
+<span class="text-on-surface-variant">Campus Mobility (Stable)</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Comparison Card -->
+<div class="bg-surface-container p-8 rounded-[2rem] flex flex-col justify-between shadow-sm">
+<div>
+<h3 class="font-bold text-xl font-headline">Social Activity</h3>
+<p class="text-xs text-on-surface-variant mt-1">Your Week vs. Regional Normal</p>
+</div>
+<div class="h-40 flex items-end justify-between px-2">
+<div class="w-8 bg-primary/20 rounded-t-xl h-full relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100">8.2h</div>
+</div>
+<div class="w-8 bg-primary rounded-t-xl h-[65%] relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100">5.4h</div>
+</div>
+<div class="w-8 bg-primary/20 rounded-t-xl h-[85%] relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100">7.1h</div>
+</div>
+<div class="w-8 bg-primary rounded-t-xl h-[40%] relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100">3.2h</div>
+</div>
+</div>
+<div class="flex justify-between items-center text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-tighter">
+<span>Mon</span>
+<span>Tue</span>
+<span>Wed</span>
+<span>Thu</span>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10">
+<div class="flex items-center space-x-2 text-[10px]">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span>You</span>
+<div class="w-2 h-2 rounded-full bg-primary/20 ml-2"></div>
+<span>Normal</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Personal Action Plan Section -->
+<section class="space-y-6">
+<div class="flex items-end justify-between">
+<div>
+<h2 class="text-2xl font-bold font-headline">Personal Action Plan</h2>
+<p class="text-sm text-on-surface-variant">Small steps for a calmer mind today.</p>
+</div>
+<span class="text-xs font-bold text-primary bg-primary-container px-4 py-2 rounded-full">3 Tasks Pending</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
+<div class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-2xl mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="park">park</span>
+</div>
+<h4 class="font-bold text-on-surface">10-Min Nature Walk</h4>
+<p class="text-xs text-on-surface-variant mt-2 leading-relaxed">Your data shows low mobility today. A quick stroll near the campus library can boost cortisol regulation.</p>
+<button class="mt-4 text-[10px] font-bold text-primary uppercase tracking-widest flex items-center hover:translate-x-1 transition-transform">Mark Done <span class="material-symbols-outlined text-sm ml-1" data-icon="chevron_right">chevron_right</span></button>
+</div>
+<div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
+<div class="w-12 h-12 bg-primary-container flex items-center justify-center rounded-2xl mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="bedtime">bedtime</span>
+</div>
+<h4 class="font-bold text-on-surface">Digital Sunset</h4>
+<p class="text-xs text-on-surface-variant mt-2 leading-relaxed">Consistent late-night phone use is impacting your sleep depth. Try 20 mins of no screens before bed.</p>
+<button class="mt-4 text-[10px] font-bold text-primary uppercase tracking-widest flex items-center hover:translate-x-1 transition-transform">Mark Done <span class="material-symbols-outlined text-sm ml-1" data-icon="chevron_right">chevron_right</span></button>
+</div>
+<div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
+<div class="w-12 h-12 bg-tertiary-container flex items-center justify-center rounded-2xl mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="group">group</span>
+</div>
+<h4 class="font-bold text-on-surface">Mess Hall Dinner</h4>
+<p class="text-xs text-on-surface-variant mt-2 leading-relaxed">Your social activity score is dipping. Dining with others can provide a natural mood anchor.</p>
+<button class="mt-4 text-[10px] font-bold text-primary uppercase tracking-widest flex items-center hover:translate-x-1 transition-transform">Mark Done <span class="material-symbols-outlined text-sm ml-1" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+</section>
+<!-- AI Nudge History: Glassmorphic Table -->
+<section class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-sm border border-outline-variant/10">
+<div class="p-8 border-b border-outline-variant/5 flex justify-between items-center">
+<div>
+<h2 class="text-xl font-bold font-headline">AI Nudge History</h2>
+<p class="text-xs text-on-surface-variant">Refining our support based on your feedback.</p>
+</div>
+<button class="text-xs font-medium text-on-surface-variant flex items-center space-x-1">
+<span>View Full Log</span>
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest bg-surface-container-low/50">
+<th class="px-8 py-4">Nudge Content</th>
+<th class="px-8 py-4">Trigger Factor</th>
+<th class="px-8 py-4">Date</th>
+<th class="px-8 py-4 text-right">Helpfulness</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="text-sm font-medium">"Time for a quick breathing break?"</span>
+</div>
+</td>
+<td class="px-8 py-6 text-xs text-on-surface-variant">High Heart Rate Latency</td>
+<td class="px-8 py-6 text-xs text-on-surface-variant">Oct 12, 11:30 AM</td>
+<td class="px-8 py-6 text-right">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold">HELPFUL</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="cancel" style="font-variation-settings: 'FILL' 1;">cancel</span>
+</div>
+<span class="text-sm font-medium">"Connect with a friend tonight."</span>
+</div>
+</td>
+<td class="px-8 py-6 text-xs text-on-surface-variant">Decreased Mobility</td>
+<td class="px-8 py-6 text-xs text-on-surface-variant">Oct 11, 6:45 PM</td>
+<td class="px-8 py-6 text-right">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant rounded-full text-[10px] font-bold">DISMISSED</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="text-sm font-medium">"Consider an earlier sleep schedule."</span>
+</div>
+</td>
+<td class="px-8 py-6 text-xs text-on-surface-variant">Late Night Phone Usage</td>
+<td class="px-8 py-6 text-xs text-on-surface-variant">Oct 10, 11:15 PM</td>
+<td class="px-8 py-6 text-right">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold">HELPFUL</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-black/[0.05] dark:border-white/[0.05] bg-[#fbf9f5] dark:bg-stone-900">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full">
+<div class="flex flex-col md:flex-row items-center md:space-x-12 space-y-4 md:space-y-0">
+<p class="font-inter text-xs tracking-wide opacity-70 text-[#31332f] dark:text-stone-400">© 2024 FixForward Mental Health. Editorial Authority &amp; Care.</p>
+<div class="flex space-x-6">
+<a class="font-inter text-xs tracking-wide opacity-70 text-[#31332f] dark:text-stone-400 hover:text-[#2D7D9A] underline-offset-4 hover:underline transition-opacity" href="#">Privacy Policy</a>
+<a class="font-inter text-xs tracking-wide opacity-70 text-[#31332f] dark:text-stone-400 hover:text-[#2D7D9A] underline-offset-4 hover:underline transition-opacity" href="#">Support Center</a>
+<a class="font-inter text-xs tracking-wide opacity-70 text-[#31332f] dark:text-stone-400 hover:text-[#2D7D9A] underline-offset-4 hover:underline transition-opacity" href="#">Clinical Ethics</a>
+<a class="font-inter text-xs tracking-wide opacity-70 text-[#31332f] dark:text-stone-400 hover:text-[#2D7D9A] underline-offset-4 hover:underline transition-opacity" href="#">Terms of Service</a>
+</div>
+</div>
+<div class="mt-6 md:mt-0 flex items-center space-x-4 opacity-50">
+<span class="material-symbols-outlined text-sm" data-icon="verified_user">verified_user</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">End-to-End Encrypted Data</span>
+</div>
+</div>
+</footer>
+<!-- Bottom Navigation Bar (Mobile Only) -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-outline-variant/10 px-6 py-4 flex justify-between items-center z-50">
+<a class="flex flex-col items-center space-y-1 text-on-surface-variant/60" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="insights" style="font-variation-settings: 'FILL' 1;">insights</span>
+<span class="text-[10px] font-bold">Insights</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-on-surface-variant/60" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="text-[10px] font-bold">Log</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-on-surface-variant/60" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="text-[10px] font-bold">Insti</span>
+</a>
+</div>
+</body></html>

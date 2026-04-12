@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(uuid())
+  firebaseId String     @unique
+  email      String     @unique
+  name       String?
+  createdAt  DateTime   @default(now())
+  logs       DailyLog[]
+}
+
+model DailyLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  sleepScore  Int      
+  mood        String   
+  stressLevel String   
+  hrv         Int?     
+  loggedAt    DateTime @default(now())
+}

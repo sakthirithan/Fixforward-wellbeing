@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
@@ -14,12 +14,12 @@ app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'healthy', message: 'FixForward API' });
 });
 
 // SUBMIT Daily Log (Authenticated)
-app.post('/api/logs', authenticate, async (req: AuthRequest, res) => {
+app.post('/api/logs', authenticate, async (req: AuthRequest, res: Response) => {
     try {
         const firebaseId = req.user?.uid;
         if (!firebaseId) return res.status(401).json({ error: 'Auth failed' });
@@ -57,7 +57,7 @@ app.post('/api/logs', authenticate, async (req: AuthRequest, res) => {
 });
 
 // GET Log History (Authenticated)
-app.get('/api/logs/history', authenticate, async (req: AuthRequest, res) => {
+app.get('/api/logs/history', authenticate, async (req: AuthRequest, res: Response) => {
     try {
         const firebaseId = req.user?.uid;
         const logs = await prisma.dailyLog.findMany({

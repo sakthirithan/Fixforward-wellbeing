@@ -5,7 +5,7 @@ interface SignalCardProps {
     value: string;
     subtitle: string;
     icon: string;
-    status: 'High' | 'Normal' | 'Low';
+    status: string;
     statusColorClass: string;
     iconContainerClass: string;
 }

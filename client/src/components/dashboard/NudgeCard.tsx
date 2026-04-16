@@ -1,4 +1,4 @@
-const NudgeCard = () => {
+const NudgeCard = ({ message, actionText }: { message?: string, actionText?: string }) => {
     return (
         <section className="max-w-4xl">
             <div className="relative overflow-hidden bg-surface-container-lowest rounded-2xl p-6 shadow-[0_40px_40px_rgba(49,51,47,0.05)] border border-black/[0.03] group">
@@ -11,10 +11,15 @@ const NudgeCard = () => {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-headline font-bold text-[#056783]">AI Wellness Assistant</h3>
-                        <p className="text-on-surface font-inter text-sm md:text-base">"You've been on your phone more than usual today. How about a 10-minute screen-free walk?"</p>
+                        <p className="text-on-surface font-inter text-sm md:text-base leading-relaxed">
+                            {message || "Loading your daily wellness strategy..."}
+                        </p>
                     </div>
-                    <button className="px-5 py-2.5 bg-[#056783] text-white rounded-xl text-sm font-bold shadow-md hover:scale-[1.02] transition-all active:opacity-80">
-                        Take a Break
+                    <button 
+                        onClick={() => !message && (window.location.href = '/manual-log')}
+                        className="px-5 py-2.5 bg-[#056783] text-white rounded-xl text-sm font-bold shadow-md hover:scale-[1.02] transition-all active:opacity-80"
+                    >
+                        {actionText || "Get Started"}
                     </button>
                 </div>
             </div>

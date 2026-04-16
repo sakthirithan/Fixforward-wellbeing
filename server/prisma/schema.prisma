@@ -16,12 +16,30 @@ model User {
 }
 
 model DailyLog {
-  id          String   @id @default(uuid())
+  id          String      @id @default(uuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  sleepScore  Int      
-  mood        String   
-  stressLevel String   
-  hrv         Int?     
-  loggedAt    DateTime @default(now())
+  user        User        @relation(fields: [userId], references: [id])
+  sleepScore  Int         
+  mood        String      
+  stressLevel String      
+  hrv         Int?        
+  riskScore   Int         @default(0)
+  productivity Int         @default(3)
+  caffeine     String      @default("None")
+  activity     String      @default("None")
+  loggedAt    DateTime   @default(now())
+  analysis    AIAnalysis?
+}
+
+model AIAnalysis {
+  id          String   @id @default(uuid())
+  logId       String   @unique
+  log         DailyLog @relation(fields: [logId], references: [id], onDelete: Cascade)
+  tasks       String[]
+  suggestions String[]
+  riskLevel   String   
+  insight     String   
+  warning     String?  
+  actionPlan  String[] 
+  createdAt   DateTime @default(now())
 }

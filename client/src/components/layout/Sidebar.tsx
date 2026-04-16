@@ -1,6 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/auth');
+    };
+
     return (
         <aside className="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-[#f5f4ef] dark:bg-stone-800 p-6 space-y-4 pt-24">
             <div className="mb-8">
@@ -10,7 +19,7 @@ const Sidebar = () => {
                     </div>
                     <div>
                         <h2 className="text-lg font-black text-[#056783] dark:text-[#95deff] leading-none">Student Wellness</h2>
-                        <p className="text-[10px] opacity-60 font-inter">System Status: Syncing</p>
+                        <p className="text-[10px] opacity-60 font-inter">System Status: Real-time Sync</p>
                     </div>
                 </div>
             </div>
@@ -28,10 +37,20 @@ const Sidebar = () => {
                     <span className="material-symbols-outlined" data-icon="account_balance">account_balance</span> Institutional View
                 </Link>
             </nav>
-            <div className="mt-auto pt-6 border-t border-black/[0.05]">
-                <button className="w-full py-3 bg-gradient-to-br from-[#056783] to-[#95deff] text-white rounded-xl font-bold text-sm shadow-lg hover:scale-[1.02] transition-transform">
-                    Crisis Support
+            <div className="mt-auto pt-6 border-t border-black/[0.05] space-y-4">
+                <Link to="/crisis" className="block">
+                    <button className="w-full py-3 bg-gradient-to-br from-[#056783] to-[#95deff] text-white rounded-xl font-bold text-sm shadow-lg hover:scale-[1.02] transition-transform">
+                        Crisis Support
+                    </button>
+                </Link>
+                <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 py-3 text-error font-bold text-sm hover:bg-error/5 rounded-xl transition-colors"
+                >
+                    <span className="material-symbols-outlined text-sm">logout</span>
+                    Sign Out
                 </button>
+            </div>
                 <div className="mt-6 flex flex-col gap-2">
                     <a href="#" className="flex items-center gap-3 px-4 py-2 text-[#31332f]/70 text-xs font-inter opacity-70 hover:opacity-100 transition-opacity">
                         <span className="material-symbols-outlined text-sm" data-icon="shield">shield</span> Privacy
@@ -40,7 +59,6 @@ const Sidebar = () => {
                         <span className="material-symbols-outlined text-sm" data-icon="help">help</span> Support
                     </a>
                 </div>
-            </div>
         </aside>
     );
 };

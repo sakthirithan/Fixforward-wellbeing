@@ -1,11 +1,81 @@
 import { useState } from 'react';
+import { auth } from '../firebase';
 
 const ManualLog = () => {
     const [sleepScore, setSleepScore] = useState(3);
     const [selectedMood, setSelectedMood] = useState<string | null>(null);
     const [stressLevel, setStressLevel] = useState<string | null>(null);
+    const [productivity, setProductivity] = useState(3);
+    const [caffeine, setCaffeine] = useState('None');
+    const [activity, setActivity] = useState('None');
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const moods = ['Anxious', 'Calm', 'Focused', 'Low Energy', 'Grateful'];
+
+    const handleCompleteLog = async () => {
+        if (!selectedMood || !stressLevel) {
+            alert("Please select your mood and stress level.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const token = await auth.currentUser?.getIdToken();
+            if (!token) throw new Error("Authentication required");
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/logs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    sleepScore,
+                    mood: selectedMood,
+                    stressLevel,
+                    productivity,
+                    caffeine,
+                    activity,
+                    hrv: 68 // Simulated
+                })
+            });
+
+            if (response.ok) {
+                setSuccess(true);
+            } else {
+                const errData = await response.json();
+                alert(`Error: ${errData.error || "Failed to save log"}`);
+            }
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("Connection error. Please check if the server is running.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (success) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in zoom-in duration-500">
+                <div className="bg-primary/10 text-primary p-6 rounded-full ring-8 ring-primary/5">
+                    <span className="material-symbols-outlined text-7xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                </div>
+                <div className="text-center space-y-4">
+                    <h1 className="text-4xl font-headline font-extrabold text-on-surface">Insight Captured!</h1>
+                    <p className="text-on-surface-variant max-w-sm text-lg mx-auto">
+                        Your energy patterns and stress levels have been securely logged. Your AI dashboard is being updated.
+                    </p>
+                </div>
+                <button 
+                    onClick={() => window.location.href = '/'} 
+                    className="px-10 py-4 bg-primary text-white rounded-full font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+                >
+                    View Results
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col xl:flex-row gap-12">
@@ -13,49 +83,57 @@ const ManualLog = () => {
             <section className="flex-1 space-y-12">
                 <header>
                     <h1 className="text-4xl lg:text-5xl font-headline font-extrabold text-on-surface tracking-tight mb-4">Daily Check-in</h1>
-                    <p className="text-on-surface-variant max-w-md text-lg">Take a breath. This is your private space to reflect on the day.</p>
+                    <p className="text-on-surface-variant max-w-md text-lg">Detailed logging helps the AI build a more accurate productivity plan for you.</p>
                 </header>
 
                 <div className="space-y-10">
-                    {/* Question 1: Sleep */}
-                    <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-secondary-container text-on-secondary-container p-3 rounded-2xl">
-                                <span className="material-symbols-outlined">bedtime</span>
-                            </div>
-                            <h2 className="text-xl font-headline font-bold text-on-surface">How well did you sleep?</h2>
-                        </div>
-                        <div className="relative pt-6">
+                    {/* Sleep & Productivity Sliders */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
+                            <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-secondary">bedtime</span>
+                                Sleep Quality
+                            </h2>
                             <input 
                                 className="w-full h-2 bg-surface-container-high rounded-full appearance-none cursor-pointer" 
-                                max="5" 
-                                min="1" 
-                                step="1" 
-                                type="range" 
-                                value={sleepScore}
+                                max="5" min="1" step="1" type="range" value={sleepScore}
                                 onChange={(e) => setSleepScore(Number(e.target.value))}
                             />
-                            <div className="flex justify-between mt-4 text-xs font-medium text-on-surface-variant px-1">
+                            <div className="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
                                 <span>Restless</span>
                                 <span>Deep Sleep</span>
                             </div>
                         </div>
+
+                        <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
+                            <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">bolt</span>
+                                Today's Productivity
+                            </h2>
+                            <input 
+                                className="w-full h-2 bg-surface-container-high rounded-full appearance-none cursor-pointer" 
+                                max="5" min="1" step="1" type="range" value={productivity}
+                                onChange={(e) => setProductivity(Number(e.target.value))}
+                            />
+                            <div className="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                                <span>Low</span>
+                                <span>Hyper-focused</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Question 2: Mood */}
+                    {/* Mood & Choices */}
                     <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-tertiary-container text-on-tertiary-container p-3 rounded-2xl">
-                                <span className="material-symbols-outlined">mood</span>
-                            </div>
-                            <h2 className="text-xl font-headline font-bold text-on-surface">How's your mood?</h2>
-                        </div>
+                        <h2 className="text-lg font-bold text-on-surface mb-8 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-tertiary">mood</span>
+                            Dominant Mood
+                        </h2>
                         <div className="flex flex-wrap gap-3">
                             {moods.map((mood) => (
                                 <button
                                     key={mood}
                                     onClick={() => setSelectedMood(mood)}
-                                    className={`px-6 py-3 rounded-xl font-medium hover:scale-[1.02] active:scale-95 transition-all ${
+                                    className={`px-6 py-3 rounded-xl font-medium transition-all ${
                                         selectedMood === mood 
                                         ? 'bg-primary-container text-on-primary-container font-bold' 
                                         : 'bg-surface-container text-on-surface'
@@ -67,49 +145,65 @@ const ManualLog = () => {
                         </div>
                     </div>
 
-                    {/* Question 3: Stress */}
-                    <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-primary-container text-on-primary-container p-3 rounded-2xl">
-                                <span className="material-symbols-outlined">school</span>
+                    {/* Caffeine & Activity */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
+                            <h2 className="text-lg font-bold text-on-surface mb-6">Caffeine Intake</h2>
+                            <div className="flex gap-2">
+                                {['None', 'Moderate', 'Heavy'].map(opt => (
+                                    <button 
+                                        key={opt}
+                                        onClick={() => setCaffeine(opt)}
+                                        className={`flex-1 py-3 rounded-xl text-xs font-bold border-2 transition-all ${
+                                            caffeine === opt ? 'border-primary bg-primary/5 text-primary' : 'border-surface-container-high text-on-surface-variant'
+                                        }`}
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
                             </div>
-                            <h2 className="text-xl font-headline font-bold text-on-surface">Any academic stress today?</h2>
                         </div>
+
+                        <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
+                            <h2 className="text-lg font-bold text-on-surface mb-6">Physical Activity</h2>
+                            <div className="flex gap-2">
+                                {['None', 'Light', 'Active'].map(opt => (
+                                    <button 
+                                        key={opt}
+                                        onClick={() => setActivity(opt)}
+                                        className={`flex-1 py-3 rounded-xl text-xs font-bold border-2 transition-all ${
+                                            activity === opt ? 'border-tertiary bg-tertiary/5 text-tertiary' : 'border-surface-container-high text-on-surface-variant'
+                                        }`}
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Stress Choice */}
+                    <div className="p-8 rounded-[2rem] bg-surface-container-lowest shadow-sm">
+                        <h2 className="text-lg font-bold text-on-surface mb-8">Academic Stress Today?</h2>
                         <div className="grid grid-cols-2 gap-4">
-                            <button 
-                                onClick={() => setStressLevel('Manageable')}
-                                className={`flex items-center justify-center gap-2 p-6 rounded-2xl border-2 font-medium transition-all ${
-                                    stressLevel === 'Manageable'
-                                    ? 'border-primary bg-primary/5 text-primary'
-                                    : 'border-surface-container-high text-on-surface-variant hover:bg-surface-container'
-                                }`}
-                            >
-                                <span className="material-symbols-outlined">sentiment_satisfied</span>
-                                Manageable
+                            <button onClick={() => setStressLevel('Manageable')} className={`flex items-center justify-center gap-2 p-6 rounded-2xl border-2 font-medium transition-all ${stressLevel === 'Manageable' ? 'border-primary bg-primary/5 text-primary' : 'border-surface-container-high text-on-surface-variant'}`}>
+                                <span className="material-symbols-outlined">sentiment_satisfied</span> Manageable
                             </button>
-                            <button 
-                                onClick={() => setStressLevel('Heavy Load')}
-                                className={`flex items-center justify-center gap-2 p-6 rounded-2xl border-2 font-medium transition-all ${
-                                    stressLevel === 'Heavy Load'
-                                    ? 'border-tertiary bg-tertiary/5 text-tertiary'
-                                    : 'border-surface-container-high text-on-surface-variant hover:bg-surface-container'
-                                }`}
-                            >
-                                <span className="material-symbols-outlined">priority_high</span>
-                                Heavy Load
+                            <button onClick={() => setStressLevel('Heavy Load')} className={`flex items-center justify-center gap-2 p-6 rounded-2xl border-2 font-medium transition-all ${stressLevel === 'Heavy Load' ? 'border-tertiary bg-tertiary/5 text-tertiary' : 'border-surface-container-high text-on-surface-variant'}`}>
+                                <span className="material-symbols-outlined">priority_high</span> Heavy Load
                             </button>
                         </div>
                     </div>
 
                     {/* Action & Feedback */}
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6">
-                        <button className="w-full sm:w-auto px-10 py-5 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-bold text-lg shadow-lg hover:scale-105 active:scale-95 transition-all">
-                            Complete Log
+                        <button 
+                            disabled={loading}
+                            onClick={handleCompleteLog}
+                            className={`w-full sm:w-auto px-10 py-5 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-bold text-lg shadow-lg hover:scale-105 active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            {loading ? 'Analyzing...' : 'Complete Log'}
                         </button>
-                        <div className="flex items-center gap-3 text-secondary italic">
-                            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
-                            <p className="text-sm font-medium">Thank you for logging. Your data is encrypted and remains private.</p>
-                        </div>
                     </div>
                 </div>
             </section>

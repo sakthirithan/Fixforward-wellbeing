@@ -1,150 +1,174 @@
 import { useEffect, useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 import { auth } from '../firebase';
+
+const dummyHistory = [
+    { id: 'd1', riskScore: 2, sleepScore: 4, productivity: 4, mood: 'Focused', stressLevel: 'Manageable', loggedAt: new Date(Date.now() - 6 * 86400000).toISOString(), analysis: { insight: "Great energy levels. Keep this momentum going.", riskLevel: "Low", suggestions: ["Morning stretching", "Stay hydrated"], actionPlan: ["Review goals", "Deep work block"] } },
+    { id: 'd2', riskScore: 5, sleepScore: 3, productivity: 3, mood: 'Anxious', stressLevel: 'Heavy Load', loggedAt: new Date(Date.now() - 5 * 86400000).toISOString(), analysis: { insight: "Stress is rising. Consider taking short breaks.", riskLevel: "Moderate", suggestions: ["Breathing exercises", "Limit caffeine"], actionPlan: ["Prioritize tasks", "15min walk"] } },
+    { id: 'd3', riskScore: 7, sleepScore: 2, productivity: 2, mood: 'Low Energy', stressLevel: 'Heavy Load', loggedAt: new Date(Date.now() - 4 * 86400000).toISOString(), analysis: { insight: "Burnout indicators detected. Recovery is needed today.", riskLevel: "High", suggestions: ["Rest is productive", "Call a friend"], actionPlan: ["Cancel non-essentials", "Sleep 8+ hours"] } },
+    { id: 'd4', riskScore: 6, sleepScore: 3, productivity: 3, mood: 'Calm', stressLevel: 'Manageable', loggedAt: new Date(Date.now() - 3 * 86400000).toISOString(), analysis: { insight: "Slight recovery. Maintain lower stress today.", riskLevel: "Moderate", suggestions: ["Gentle yoga", "Journaling"], actionPlan: ["Start with easy tasks", "No late nights"] } },
+    { id: 'd5', riskScore: 4, sleepScore: 4, productivity: 3, mood: 'Calm', stressLevel: 'Manageable', loggedAt: new Date(Date.now() - 2 * 86400000).toISOString(), analysis: { insight: "Consistent recovery trend. You're bouncing back.", riskLevel: "Low", suggestions: ["Continue good sleep habits"], actionPlan: ["Plan tomorrow's tasks"] } },
+    { id: 'd6', riskScore: 3, sleepScore: 4, productivity: 4, mood: 'Focused', stressLevel: 'Manageable', loggedAt: new Date(Date.now() - 86400000).toISOString(), analysis: { insight: "Excellent recovery arc. Cognitive function improving.", riskLevel: "Low", suggestions: ["Keep this routine"], actionPlan: ["Deep work in the morning"] } },
+    { id: 'd7', riskScore: 2, sleepScore: 5, productivity: 5, mood: 'Grateful', stressLevel: 'Manageable', loggedAt: new Date().toISOString(), analysis: { insight: "Peak performance state detected. This is your optimal zone.", riskLevel: "Low", suggestions: ["Tackle hardest tasks first", "Social connection boosts this further"], actionPlan: ["Ship important work", "Share gratitude with someone"] } },
+];
+
+const riskColors: Record<string, string> = { Low: 'text-emerald-600 bg-emerald-50', Moderate: 'text-amber-600 bg-amber-50', High: 'text-orange-600 bg-orange-50', Critical: 'text-rose-600 bg-rose-50' };
 
 const Insights = () => {
     const [history, setHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-
-    const dummyHistory = [
-        {
-            id: 'd1',
-            riskScore: 3,
-            loggedAt: new Date().toISOString(),
-            analysis: {
-                insight: "Consistent sleep patterns and moderate exercise are keeping your stress levels stable.",
-                actionPlan: ["Maintain 7h sleep", "Hydrate more", "Continue morning walks"],
-                suggestions: ["Evening herbal tea", "5min stretching", "Journaling"]
-            }
-        },
-        {
-            id: 'd2',
-            riskScore: 7,
-            loggedAt: new Date(Date.now() - 86400000).toISOString(),
-            analysis: {
-                insight: "High academic load detected. Prioritize recovery today.",
-                actionPlan: ["Delegate tasks", "Power nap", "No caffeine after 2pm"],
-                suggestions: ["Breathing exercise", "Quiet environment", "Warm shower"]
-            }
-        }
-    ];
+    const [activeTab, setActiveTab] = useState<'risk' | 'sleep' | 'mood'>('risk');
 
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 const token = await auth.currentUser?.getIdToken();
-                if (!token) {
-                    setHistory(dummyHistory); // Fallback
-                    setLoading(false);
-                    return;
-                }
+                if (!token) { setHistory(dummyHistory); setLoading(false); return; }
 
-                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/logs/history`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/logs/history`,
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+
+                if (res.ok) {
+                    const data = await res.json();
                     setHistory(data.length > 0 ? data : dummyHistory);
                 } else {
                     setHistory(dummyHistory);
                 }
-            } catch (error) {
-                console.error("Insights fetch error:", error);
+            } catch {
                 setHistory(dummyHistory);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchHistory();
     }, []);
 
-    const latest = history[0];
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        </div>
+    );
 
-    if (loading) return <div className="p-10 text-on-surface-variant italic">Aggregating neuro-insights...</div>;
+    const chartData = [...history].reverse().map((log) => ({
+        day: new Date(log.loggedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        risk: log.riskScore,
+        sleep: log.sleepScore,
+        productivity: log.productivity || 3,
+    }));
+
+    const latestLog = history[0];
+    const avgRisk = (history.reduce((a, b) => a + (b.riskScore || 0), 0) / history.length).toFixed(1);
+    const avgSleep = (history.reduce((a, b) => a + (b.sleepScore || 0), 0) / history.length).toFixed(1);
+    const trend = history.length > 1
+        ? (history[0].riskScore || 0) < (history[1].riskScore || 0) ? 'Improving 📈' : 'Needs Attention 📉'
+        : 'Not enough data';
 
     return (
-        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="flex flex-col lg:flex-row gap-12">
-                <div className="flex-1 space-y-8">
-                    <header>
-                        <p className="text-xs font-bold text-secondary tracking-widest uppercase mb-2">Deep Intelligence Report</p>
-                        <h1 className="text-5xl font-headline font-extrabold text-on-surface tracking-tight leading-tight">
-                            Personalized <br/> <span className="text-primary">Neuro-Insights</span>
-                        </h1>
-                    </header>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-12">
-                        <div className="p-8 bg-surface-container-lowest rounded-[2.5rem] shadow-sm border border-black/[0.02]">
-                            <p className="text-sm text-on-surface-variant font-medium mb-2">Weekly Risk Intensity</p>
-                            <h2 className="text-6xl font-headline font-extrabold flex items-baseline gap-2">
-                                {latest?.riskScore ? latest.riskScore * 10 : '--'} 
-                                <span className="text-xl text-on-surface-variant/30 font-bold uppercase tracking-widest">Index</span>
-                            </h2>
-                            <p className="text-sm text-on-surface-variant mt-6 leading-relaxed">
-                                {latest?.analysis?.insight || "Complete your first daily log to generate a comprehensive risk profile."}
-                            </p>
-                        </div>
-                        
-                        <div className="bg-primary/5 p-8 rounded-[2.5rem] border border-primary/10">
-                            <h3 className="font-bold text-primary mb-6 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-xl">verified</span>
-                                AI Strategy
-                            </h3>
-                            <ul className="space-y-4">
-                                {(latest?.analysis?.actionPlan || ["Identify patterns", "Adjust habits", "Improve sleep"]).map((step: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-4 text-sm font-medium text-on-surface">
-                                        <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">{i+1}</span>
-                                        {step}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="w-full lg:w-96 space-y-8">
-                    <div className="bg-surface-container-high p-8 rounded-[3rem] sticky top-28">
-                        <h3 className="font-headline font-bold text-xl mb-6">Longitudinal History</h3>
-                        <div className="space-y-6">
-                            {history.length > 0 ? history.map((log) => (
-                                <div key={log.id} className="group cursor-default">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs font-bold text-on-surface-variant">
-                                            {new Date(log.loggedAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                                        </span>
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tight ${
-                                            log.riskScore >= 7 ? 'bg-error/10 text-error' : 'bg-secondary/10 text-secondary'
-                                        }`}>
-                                            Risk: {log.riskScore}/10
-                                        </span>
-                                    </div>
-                                    <div className="h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                                        <div 
-                                            className={`h-full transition-all duration-1000 ${log.riskScore >= 7 ? 'bg-error' : 'bg-secondary'}`}
-                                            style={{ width: `${log.riskScore * 10}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            )) : (
-                                <p className="text-xs text-on-surface-variant italic">No historical data recorded yet.</p>
-                            )}
-                        </div>
-                    </div>
+        <div className="space-y-6 animate-in fade-in duration-500">
+            {/* AI Summary */}
+            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-6 text-white">
+                <p className="text-indigo-200 text-xs font-semibold uppercase tracking-widest mb-2">AI Weekly Summary</p>
+                <h2 className="text-xl font-bold mb-1">
+                    {latestLog?.analysis?.insight || "Keep logging to generate AI insights."}
+                </h2>
+                <div className="flex flex-wrap gap-3 mt-4">
+                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">Avg Risk: {avgRisk}/10</span>
+                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">Avg Sleep: {avgSleep}/5</span>
+                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">Trend: {trend}</span>
                 </div>
             </div>
 
-            <section className="pt-8">
-                <h3 className="text-2xl font-headline font-bold text-on-surface mb-8">Personalized Recovery Tips</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {(latest?.analysis?.suggestions || ["Hydrate frequently", "Prioritize sleep", "Mindful breathing"]).map((tip: string, i: number) => (
-                        <div key={i} className="p-6 bg-surface-container border border-black/[0.04] rounded-3xl hover:bg-surface-container-highest transition-colors">
-                            <span className="material-symbols-outlined text-primary mb-4">auto_awesome</span>
-                            <p className="font-medium text-on-surface">{tip}</p>
+            {/* Charts */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                {/* Tabs */}
+                <div className="flex items-center gap-2 mb-6">
+                    <h3 className="font-bold text-slate-800 mr-2">Analytics</h3>
+                    {(['risk', 'sleep', 'mood'] as const).map(tab => (
+                        <button key={tab} onClick={() => setActiveTab(tab)}
+                            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all capitalize ${
+                                activeTab === tab ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                            }`}>
+                            {tab === 'risk' ? '🔴 Risk Index' : tab === 'sleep' ? '😴 Sleep' : '⚡ Productivity'}
+                        </button>
+                    ))}
+                </div>
+
+                <ResponsiveContainer width="100%" height={220}>
+                    {activeTab === 'risk' ? (
+                        <AreaChart data={chartData}>
+                            <defs>
+                                <linearGradient id="riskGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.02} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                            <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                            <YAxis domain={[0, 10]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                            <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: 12 }} />
+                            <Area type="monotone" dataKey="risk" stroke="#6366f1" strokeWidth={2.5} fill="url(#riskGrad)" dot={{ r: 4, fill: '#6366f1' }} />
+                        </AreaChart>
+                    ) : activeTab === 'sleep' ? (
+                        <BarChart data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                            <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                            <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                            <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: 12 }} />
+                            <Bar dataKey="sleep" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                    ) : (
+                        <LineChart data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                            <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                            <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                            <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: 12 }} />
+                            <Line type="monotone" dataKey="productivity" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 4, fill: '#f59e0b' }} />
+                        </LineChart>
+                    )}
+                </ResponsiveContainer>
+            </div>
+
+            {/* Log History Timeline */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-indigo-500 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>history</span>
+                    Wellness Log Timeline
+                </h3>
+                <div className="space-y-3">
+                    {history.map((log) => (
+                        <div key={log.id || log.loggedAt} className="flex items-start gap-4 p-4 rounded-xl border border-slate-50 hover:bg-slate-50 transition-colors">
+                            {/* Risk indicator dot */}
+                            <div className={`w-2 mt-2 flex-shrink-0 rounded-full h-8 ${
+                                (log.riskScore || 0) <= 3 ? 'bg-emerald-400' :
+                                (log.riskScore || 0) <= 6 ? 'bg-amber-400' : 'bg-rose-400'
+                            }`}></div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span className="text-xs font-semibold text-slate-500">
+                                        {new Date(log.loggedAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                                    </span>
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${riskColors[log.analysis?.riskLevel || 'Low'] || 'text-slate-500 bg-slate-50'}`}>
+                                        {log.analysis?.riskLevel || 'No Analysis Yet'}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400">Risk: {log.riskScore}/10 · Sleep: {log.sleepScore}/5 · Mood: {log.mood}</span>
+                                </div>
+                                <p className="text-sm text-slate-600 leading-relaxed truncate">
+                                    {log.analysis?.insight || 'AI analysis will appear shortly after logging.'}
+                                </p>
+                                {log.analysis?.suggestions && (
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {(log.analysis.suggestions || []).slice(0, 2).map((s: string, j: number) => (
+                                            <span key={j} className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-500 rounded-full">{s}</span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
-            </section>
+            </div>
         </div>
     );
 };

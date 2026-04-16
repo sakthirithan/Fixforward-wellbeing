@@ -1,55 +1,55 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
+import { geminiModel } from './aiServiceInstance';
 
-dotenv.config();
-
-const apiKey = process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-  console.warn("GEMINI_API_KEY is missing. AI analysis will be disabled.");
-}
-
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-export const geminiModel = genAI ? genAI.getGenerativeModel({ model: "gemini-1.5-flash" }) : null;
-
-export const getAIWellnessAnalysis = async (sleepScore: number, mood: string, stressLevel: string, riskScore: number) => {
-  if (!geminiModel) return null;
-
-  const prompt = `
-    You are a professional clinical psychologist and productivity coach.
-    Analyze the following user data and provide a response in STRICT JSON format.
-    
-    DATA:
-    Sleep Score: ${sleepScore}/5
-    Daily Mood: ${mood}
-    Stress Level: ${stressLevel}
-    Heuristic Risk Score: ${riskScore}/10
-    
-    JSON SCHEMA:
-    {
-      "tasks": ["3 actionable productivity tasks for today based on their energy/mood"],
-      "suggestions": ["3 wellness/breathwork/movement tips to improve their state"],
-      "riskLevel": "low | medium | high",
-      "insight": "A 2-sentence empathetic analysis of their current state",
-      "warning": "A specific health warning if risk is high, or null",
-      "actionPlan": ["3 immediate steps for the next 4-6 hours"]
+export async function getAIWellnessAnalysis(currentLog: any, history: any[]) {
+    if (!geminiModel) {
+        console.error("Gemini Model not initialized");
+        return null;
     }
-    
-    RULES:
-    - Output ONLY pure JSON.
-    - No markdown formatting (no \`\`\`json).
-    - If risk is high, focus on recovery.
-    - If risk is low, focus on productivity.
-  `;
 
-  try {
-    const result = await geminiModel.generateContent(prompt);
-    const text = result.response.text();
-    // In case the AI includes markdown tags despite instructions
-    const cleanJson = text.replace(/```json|```/gi, "").trim();
-    return JSON.parse(cleanJson);
-  } catch (error) {
-    console.error("AI Analysis Failed:", error);
-    return null;
-  }
-};
+    try {
+        const historyContext = history.map(h => 
+            `- Date: ${new Date(h.loggedAt).toDateString()}, Sleep: ${h.sleepScore}, Mood: ${h.mood}, Stress: ${h.stressLevel}, Productivity: ${h.productivity}`
+        ).join('\n');
+
+        const prompt = `
+            As a clinical wellness AI, analyze this student's latest data in the context of their recent history.
+            
+            HISTORY (Last 7 Logs):
+            ${historyContext || 'No previous history.'}
+            
+            LATEST LOG:
+            - Sleep: ${currentLog.sleepScore}/5
+            - Mood: ${currentLog.mood}
+            - Stress: ${currentLog.stressLevel}
+            - Productivity: ${currentLog.productivity}/5
+            - Activity: ${currentLog.activity}
+            - Risk Score (Heuristic): ${currentLog.riskScore}/10
+
+            Task:
+            1. Identify if there is a 'Downward Spiral' (deteriorating metrics) or 'Rebound Recovery' (improvement after bad phase).
+            2. Provide actionable, academic-aligned recovery or optimization steps.
+            
+            Return ONLY a JSON object with:
+            {
+                "insight": "Short empathetic summary (max 2 sentences)",
+                "tasks": ["3 specific academic/health tasks"],
+                "suggestions": ["3 immediate wellness nudges"],
+                "riskLevel": "Low/Moderate/High/Critical",
+                "warning": "Specific clinical warning if patterns are dangerous",
+                "actionPlan": ["Step 1", "Step 2", "Step 3"]
+            }
+        `;
+
+        const result = await geminiModel.generateContent(prompt);
+        const responseText = result.response.text();
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+        }
+        // Fallback: strip markdown code blocks and parse
+        return JSON.parse(responseText.replace(/```json|```/g, '').trim());
+    } catch (error) {
+        console.error("AI Insight Error:", error);
+        return null;
+    }
+}
